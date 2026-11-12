@@ -1,52 +1,49 @@
 # Project Notes and Viva Preparation
 
-## Problem statement
-Weak and predictable passwords can put online accounts at risk. This application gives educational feedback about common password characteristics so a user can see areas to improve.
+## Objective
+Develop a tool that evaluates user-entered passwords by checking length, complexity and uniqueness, then suggests ways to improve them.
 
-## How the application works
-1. The user enters a made-up test password in the Streamlit interface.
-2. The `analyze_password()` function checks length and character categories.
-3. Regular expressions identify lowercase letters, uppercase letters, digits, symbols, and a simple repeated-character pattern.
-4. The application calculates a checklist score and displays a strength label.
-5. The application lists suggestions for checks that did not pass.
-6. The `generate_example_password()` function demonstrates random generation with Python's `secrets` module.
+## Modules
+1. **Input and interface:** Streamlit accepts a fictional test password.
+2. **Strength analysis:** `analyze_password()` checks length, character types, repeated characters and a small common-password list.
+3. **Uniqueness/history:** SQLite stores salted scrypt hashes. A candidate is checked against stored hashes without storing plaintext.
+4. **Suggestions:** The app recommends improvements for failed checks.
+5. **Password generation:** `secrets` generates a random example.
 
-## Important security decisions
-- The app does not intentionally write passwords to files or a database.
-- The app does not send passwords to an external API.
-- The interface tells users to use made-up test passwords.
-- Password reuse tracking is not implemented.
-- The displayed score is only a simple educational heuristic.
+## Security notes
+- Never enter a password used for a real account.
+- The database stores salted derived hashes, not plaintext.
+- The local database is a learning demonstration, not a production password manager.
+- The history only applies to this app's local database and does not synchronize between devices or check breach databases.
+- The strength score is a simple heuristic, not a security guarantee.
 
 ## Viva questions
+**1. What is the purpose?**  
+To evaluate basic password characteristics and provide improvement suggestions.
 
-**1. What is the purpose of this project?**
-To evaluate basic password characteristics and provide suggestions that help users understand password hygiene.
+**2. What is password complexity?**  
+The use of different character categories, such as uppercase, lowercase, digits and symbols.
 
-**2. Why is Python used?**
-Python has readable syntax and built-in modules for text processing, regular expressions, and secure random generation.
+**3. What is password uniqueness in this project?**  
+The app checks whether a candidate matches a password hash already stored in its local history.
 
-**3. What is Streamlit?**
-Streamlit is a Python framework for building interactive web applications with Python.
+**4. Why use hashing?**  
+Hashing transforms a password into a derived value so the original password does not need to be stored.
 
-**4. What is a regular expression?**
-A regular expression is a text pattern used to search or match strings. This project uses regular expressions to identify character categories and repeated characters.
+**5. Why use a salt?**  
+A unique random salt makes identical passwords produce different stored hashes and makes precomputed hash attacks harder.
 
-**5. Why use `secrets` instead of `random` for password generation?**
-The `secrets` module is designed for security-sensitive random values. The `random` module is intended for general-purpose randomness.
+**6. Why use scrypt?**  
+Scrypt is a password-based key derivation function designed to make guessing more computationally expensive.
 
-**6. Does the score guarantee that a password is secure?**
-No. It is a simple educational checklist. Unpredictability, uniqueness, password length, and exposure in data breaches also matter.
+**7. Why use SQLite?**  
+SQLite is a lightweight database that stores the local password-history records in a file.
 
-**7. Does the application store passwords?**
-The application does not intentionally save passwords or send them to an external service. The entered value is processed for the current analysis.
+**8. Why use `secrets`?**  
+Python's `secrets` module is designed for security-sensitive random values.
 
-**8. Is password reuse checking included?**
-No. It is an optional feature in the task description and is not implemented in this version.
+**9. Does the score guarantee safety?**  
+No. It is an educational checklist. Predictability, uniqueness, length and exposure in breaches also matter.
 
-## Before presenting the project
-- Run the app locally.
-- Test it with made-up strings.
-- Understand the functions in `app.py`.
-- Be ready to explain the limitations honestly.
-- Follow the task provider's rules about acknowledging AI assistance.
+**10. What is a limitation?**  
+The history database is local to one installation and does not synchronize between devices or check breached-password databases.
