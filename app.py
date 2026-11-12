@@ -124,29 +124,35 @@ password = st.text_input("Enter a test password", type="password")
 if st.button("Analyze password", type="primary"):
     if not password:
         st.warning("Please enter a test password.")
+        st.session_state.pop("last_test_password", None)
+        st.session_state.pop("last_analysis", None)
     else:
-        result = analyze_password(password)
-        previously_used = was_used_before(password)
-        st.subheader("Analysis result")
-        if previously_used:
-            st.error("This password appears in this application's saved history. Choose a different password.")
-        else:
-            st.metric("Estimated strength", result["label"])
-        st.progress(result["score"] / 7)
-        st.caption(
-            f"Checklist score: {result['score']} / 7. This educational score is not a guarantee of security."
-        )
-        st.subheader("Security checklist")
-        for name, passed in result["checks"]:
-            st.write(f"{'✅' if passed else '❌'} {name}")
-        st.write("**Password uniqueness:** " + ("❌ Previously used in this local history." if previously_used else "✅ Not found in this local history."))
-        st.subheader("Suggestions")
-        for item in result["suggestions"]:
-            st.write("• " + item)
-        if not previously_used:
-            if st.button("Save this password to local history (hash only)"):
-                save_password_hash(password)
-                st.success("A salted hash was saved. The original password was not stored.")
+        st.session_state["last_test_password"] = password
+        st.session_state["last_analysis"] = analyze_password(password)
+
+if st.session_state.get("last_analysis") is not None:
+    test_password = st.session_state["last_test_password"]
+    result = st.session_state["last_analysis"]
+    previously_used = was_used_before(test_password)
+    st.subheader("Analysis result")
+    if previously_used:
+        st.error("This password appears in this application's saved history. Choose a different password.")
+    else:
+        st.metric("Estimated strength", result["label"])
+    st.progress(result["score"] / 7)
+    st.caption(
+        f"Checklist score: {result['score']} / 7. This educational score is not a guarantee of security."
+    )
+    st.subheader("Security checklist")
+    for name, passed in result["checks"]:
+        st.write(f"{'✅' if passed else '❌'} {name}")
+    st.write("**Password uniqueness:** " + ("❌ Previously used in this local history." if previously_used else "✅ Not found in this local history."))
+    st.subheader("Suggestions")
+    for item in result["suggestions"]:
+        st.write("• " + item)
+    if not previously_used and st.button("Save this password to local history (hash only)"):
+        save_password_hash(test_password)
+        st.success("A salted hash was saved. The original password was not stored.")
 
 st.divider()
 st.subheader("Generate a stronger example")
